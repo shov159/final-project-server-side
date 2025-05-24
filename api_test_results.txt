@@ -1,0 +1,12 @@
+Testing /about endpoint
+200 [{'first_name': 'mosh', 'last_name': 'israeli'}, {'first_name': 'mosh', 'last_name': 'israeli'}]
+Testing user existence before adding cost
+200 {'first_name': 'mosh', 'last_name': 'israeli', 'id': 123123, 'total': 134}
+Testing valid cost addition
+201 {'userid': 123123, 'description': 'Train Ticket', 'category': 'education', 'sum': 18, 'day': 24, 'month': 5, 'year': 2025}
+Testing /add with invalid category
+400 {'error': 'Cost validation failed: category: `invalid_category` is not a valid enum value for path `category`.'}
+Testing /report with user not found
+200 {'userid': 999999, 'year': 2025, 'month': 2, 'costs': [{'food': []}, {'health': []}, {'housing': []}, {'sport': []}, {'education': []}]}
+Testing /report with invalid params
+500 {'error': 'Server error'}

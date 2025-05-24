@@ -31,22 +31,18 @@ router.post("/add", async (req, res) => {
       typeof req.body.sum !== "number" ||
       req.body.sum <= 0
     ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Missing or invalid parameters. Required: userid, description, category, sum (positive).",
-        });
+      return res.status(400).json({
+        error:
+          "Missing or invalid parameters. Required: userid, description, category, sum (positive).",
+      });
     }
 
     const validCategories = ["food", "health", "housing", "sport", "education"];
     if (!validCategories.includes(req.body.category)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Invalid category. Allowed: food, health, housing, sport, education.",
-        });
+      return res.status(400).json({
+        error:
+          "Invalid category. Allowed: food, health, housing, sport, education.",
+      });
     }
 
     const costDate = req.body.date
@@ -132,12 +128,15 @@ router.get("/report", async (req, res) => {
     const monthNum = Number(month);
 
     if (
+      !id ||
       !Number.isInteger(yearNum) ||
       !Number.isInteger(monthNum) ||
       monthNum < 1 ||
       monthNum > 12
     ) {
-      return res.status(400).json({ error: "Invalid year or month." });
+      return res
+        .status(400)
+        .json({ error: "Invalid year, month or missing ID." });
     }
 
     const foundUser = await User.findOne({ id: trimmedId });
