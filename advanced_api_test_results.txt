@@ -1,0 +1,8 @@
+Testing /about endpoint
+200 [{'first_name': 'mosh', 'last_name': 'israeli'}, {'first_name': 'mosh', 'last_name': 'israeli'}]
+Testing user existence before adding cost
+200 {'first_name': 'mosh', 'last_name': 'israeli', 'id': 123123, 'total': 26}
+Testing valid cost addition
+201 {'userid': 123123, 'description': 'Bread', 'category': 'food', 'sum': 5, 'day': 23, 'month': 5, 'year': 2025, '_id': '68305d3d6b201841e0073d4e', '__v': 0}
+Testing /add with invalid category
+500 {'error': 'Cost validation failed: category: `invalid_category` is not a valid enum value for path `category`.'}
