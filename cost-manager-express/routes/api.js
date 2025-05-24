@@ -3,7 +3,7 @@ const router = express.Router();
 const Cost = require("../models/costs");
 const User = require("../models/users");
 
-// POST /api/add
+// ✅ POST /api/add
 router.post("/add", async (req, res) => {
   try {
     const { userid, description, category, sum } = req.body;
@@ -26,11 +26,14 @@ router.post("/add", async (req, res) => {
     const saved = await newCost.save();
     res.status(201).json(saved);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// GET /api/report
+// ✅ GET /api/report
 router.get("/report", async (req, res) => {
   try {
     const { id, year, month } = req.query;
@@ -63,11 +66,11 @@ router.get("/report", async (req, res) => {
       costs: groupedCosts,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// GET /api/users/:id
+// ✅ GET /api/users/:id
 router.get("/users/:id", async (req, res) => {
   try {
     const userId = Number(req.params.id);
@@ -87,17 +90,17 @@ router.get("/users/:id", async (req, res) => {
       total: total[0] ? total[0].total : 0,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// GET /api/about
+// ✅ GET /api/about
 router.get("/about", async (req, res) => {
   try {
     const users = await User.find({}, { _id: 0, first_name: 1, last_name: 1 });
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 });
 

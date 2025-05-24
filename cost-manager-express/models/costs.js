@@ -14,4 +14,12 @@ const costSchema = new mongoose.Schema({
   year: Number,
 });
 
+costSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
+
 module.exports = mongoose.model("Cost", costSchema);

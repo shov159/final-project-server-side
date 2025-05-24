@@ -8,4 +8,13 @@ const userSchema = new mongoose.Schema({
   marital_status: String,
 });
 
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret._id;
+    delete ret.__v;
+    delete ret.id;
+    return ret;
+  },
+});
+
 module.exports = mongoose.model("User", userSchema);
