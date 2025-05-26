@@ -135,9 +135,7 @@ router.get("/report", async (req, res) => {
       monthNum < 1 ||
       monthNum > 12
     ) {
-      return res
-        .status(400)
-        .json({ error: "Invalid year, month or missing ID." });
+      return res.status(400).json({ error: "Invalid year or month." });
     }
 
     const foundUser = await User.findOne({ id: trimmedId });
