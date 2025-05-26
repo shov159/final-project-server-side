@@ -128,7 +128,8 @@ router.get("/report", async (req, res) => {
     const monthNum = Number(month);
 
     if (
-      !id ||
+      isNaN(yearNum) ||
+      isNaN(monthNum) ||
       !Number.isInteger(yearNum) ||
       !Number.isInteger(monthNum) ||
       monthNum < 1 ||
