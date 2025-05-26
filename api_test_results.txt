@@ -1,12 +1,14 @@
 Testing /about endpoint
-200 [{'first_name': 'mosh', 'last_name': 'israeli'}, {'first_name': 'mosh', 'last_name': 'israeli'}]
+200 [{'first_name': 'Shoval', 'last_name': 'Markowitz'}, {'first_name': 'Adi', 'last_name': 'Cheifetz'}]
 Testing user existence before adding cost
-200 {'first_name': 'mosh', 'last_name': 'israeli', 'id': 123123, 'total': 224}
+200 {'_id': '6830598390e985990a3bc11a', 'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
 Testing valid cost addition
-201 {'userid': 123123, 'description': 'Train Ticket', 'category': 'education', 'sum': 18, 'day': 26, 'month': 5, 'year': 2025}
+201 {'userid': 123123, 'description': 'Train Ticket', 'category': 'education', 'sum': 18}
 Testing /add with invalid category
-400 {'error': 'Cost validation failed: category: `invalid_category` is not a valid enum value for path `category`.'}
+400 {'error': 'category must be one of: food, health, housing, sport, education'}
 Testing /report with user not found
-200 {'userid': 999999, 'year': 2025, 'month': 2, 'costs': [{'food': []}, {'health': []}, {'housing': []}, {'sport': []}, {'education': []}]}
+404 {'error': 'User not found'}
 Testing /report with invalid params
-500 {'error': 'Server error'}
+400 {'error': 'year must be an integer'}
+Testing report after adding cost
+200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [], 'health': [], 'housing': [], 'sport': [], 'education': []}, 'createdAt': '2025-05-26T17:34:01.478Z', 'updatedAt': '2025-05-26T17:34:01.478Z'}

@@ -1,148 +1,170 @@
 /**
- * ------------------------------------------------------------------
- *  Cost-Manager – Main API routes
- * ------------------------------------------------------------------
- *  End-points
- *  ----------
- *  POST  /api/add           – add a single cost item
- *  GET   /api/report        – monthly report grouped by category
- *  GET   /api/users/:id     – user info + running total of all costs
- *  GET   /api/about         – who built this project
- *
- *  Notes
- *  -----
- *  • All IDs are stored *as strings* (they arrive from the client as
- *    strings anyway – we avoid the usual Number precision trap).
- *  • Validation is **strict and early** – nothing hits the DB before
- *    the request is proven well-formed.
- *  • A simple write-through cache (MonthlyReport collection) is used
- *    to avoid re-aggregating a month that was already computed.
- * ------------------------------------------------------------------
+ * All the API routes for the project:
+ * - Add cost
+ * - Monthly report
+ * - User details
+ * - Development team info
  */
-
 const express = require("express");
 const router = express.Router();
-
 const User = require("../models/users");
 const Cost = require("../models/costs");
 const MonthlyReport = require("../models/monthlyReport");
 
-/* ------------------------------------------------------------------
- * Helpers
- * ---------------------------------------------------------------- */
-const VALID_CATEGORIES = ["food", "health", "housing", "sport", "education"];
-
-/** Assert a boolean condition or throw a 400. */
-function ensure(cond, msg) {
-  if (!cond) throw Object.assign(new Error(msg), { code: 400 });
-}
-
-/** Parse YYYY-MM-DD (any ISO) into a Date object at midnight UTC. */
-function safeIsoDate(str) {
-  const d = new Date(`${str}T00:00:00.000Z`);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/* ------------------------------------------------------------------
- * 1)  POST /api/add  – create a cost record
- * ---------------------------------------------------------------- */
+/**
+ * Add a new cost for a user.
+ * @route POST /add
+ * @body {string} userid - User ID
+ * @body {string} description - Cost description
+ * @body {string} category - Cost category (food, health, housing, sport, education)
+ * @body {number} sum - Cost amount (must be positive)
+ * @body {string} [date] - Optional date (defaults to today)
+ */
 router.post("/add", async (req, res) => {
   try {
-    const { userid, description, category, sum, date } = req.body;
+    const userId = req.body.userid ? String(req.body.userid) : null;
 
-    /* ---------- basic validation ---------- */
-    ensure(userid, "userid is required");
-    ensure(description, "description is required");
-    ensure(category, "category is required");
-    ensure(
-      VALID_CATEGORIES.includes(category),
-      `category must be one of: ${VALID_CATEGORIES.join(", ")}`
-    );
-    ensure(typeof sum === "number" && sum > 0, "sum must be a positive number");
+    if (
+      !userId ||
+      !req.body.description ||
+      !req.body.category ||
+      typeof req.body.sum !== "number" ||
+      req.body.sum <= 0
+    ) {
+      return res.status(400).json({
+        error:
+          "Missing or invalid parameters. Required: userid, description, category, sum (positive).",
+      });
+    }
 
-    const costDate = date ? safeIsoDate(date) : new Date();
-    ensure(costDate, "Invalid date format – use YYYY-MM-DD");
+    const validCategories = ["food", "health", "housing", "sport", "education"];
+    if (!validCategories.includes(req.body.category)) {
+      return res.status(400).json({
+        error:
+          "Invalid category. Allowed: food, health, housing, sport, education.",
+      });
+    }
 
-    /* ---------- user must exist ---------- */
-    const person = await User.findOne({ id: String(userid).trim() });
-    if (!person) return res.status(404).json({ error: "User not found" });
+    const costDate = req.body.date
+      ? new Date(req.body.date + "T00:00:00.000Z")
+      : new Date();
+    if (isNaN(costDate.getTime())) {
+      return res.status(400).json({ error: "Invalid date format." });
+    }
 
-    /* ---------- create & save ---------- */
-    const costDoc = await new Cost({
-      userid: String(userid).trim(),
-      description,
-      category,
-      sum,
+    const foundUser = await User.findOne({ id: userId });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const newCost = new Cost({
+      description: req.body.description,
+      category: req.body.category,
+      userid: userId,
+      sum: req.body.sum,
       date: costDate,
-    }).save();
+    });
 
-    /* ---------- write-through cache update (if report document exists) ---------- */
-    const y = costDate.getUTCFullYear();
-    const m = costDate.getUTCMonth() + 1; // 1-based
+    const savedCost = await newCost.save();
 
-    await MonthlyReport.updateOne(
-      { userid: costDoc.userid, year: y, month: m },
-      {
-        $push: {
-          [`costs.${category}`]: {
-            sum,
-            description,
-            day: costDate.getUTCDate(),
-          },
-        },
+    const year = costDate.getFullYear();
+    const month = costDate.getMonth() + 1;
+
+    const existingMonthlyReport = await MonthlyReport.findOne({
+      userid: userId,
+      year,
+      month,
+    });
+    if (existingMonthlyReport) {
+      if (!existingMonthlyReport.costs[req.body.category]) {
+        existingMonthlyReport.costs[req.body.category] = [];
       }
-    ).catch(() => {}); // if no doc – ignore, we’ll create it on demand
 
-    /* ---------- done ---------- */
-    res.status(201).json(costDoc);
+      await MonthlyReport.updateOne(
+        { userid: userId, year, month },
+        {
+          $push: {
+            [`costs.${req.body.category}`]: {
+              sum: savedCost.sum,
+              description: savedCost.description,
+              day: costDate.getDate(),
+            },
+          },
+        }
+      );
+    }
+
+    res.status(201).json({
+      cost: {
+        description: savedCost.description,
+        category: savedCost.category,
+        userid: savedCost.userid,
+        sum: savedCost.sum,
+        date: savedCost.date,
+      },
+    });
   } catch (err) {
-    const status = err.code === 400 ? 400 : 500;
-    res.status(status).json({ error: err.message || "Server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-/* ------------------------------------------------------------------
- * 2)  GET /api/report?id=&year=&month=
- * ---------------------------------------------------------------- */
+/**
+ * Get monthly report for a user.
+ * @route GET /report
+ * @query {string} id - User ID
+ * @query {number} year - Year
+ * @query {number} month - Month (1-12)
+ */
 router.get("/report", async (req, res) => {
   try {
     const { id, year, month } = req.query;
 
-    /* ---------- strong input validation ---------- */
-    ensure(id, "id is required");
+    if (!id || !year || !month) {
+      return res.status(400).json({ error: "Missing required parameters." });
+    }
+
+    const trimmedId = id.trim();
     const yearNum = Number(year);
     const monthNum = Number(month);
 
-    ensure(Number.isInteger(yearNum), "year must be an integer");
-    ensure(
-      Number.isInteger(monthNum) && monthNum >= 1 && monthNum <= 12,
-      "month must be an integer between 1 and 12"
-    );
+    if (
+      isNaN(yearNum) ||
+      isNaN(monthNum) ||
+      !Number.isInteger(yearNum) ||
+      !Number.isInteger(monthNum) ||
+      monthNum < 1 ||
+      monthNum > 12
+    ) {
+      return res.status(400).json({ error: "Invalid year or month." });
+    }
 
-    /* ---------- user exists? ---------- */
-    const person = await User.findOne({ id: id.trim() });
-    if (!person) return res.status(404).json({ error: "User not found" });
+    const foundUser = await User.findOne({ id: trimmedId });
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found." });
+    }
 
-    /* ---------- try cached report ---------- */
-    const cached = await MonthlyReport.findOne({
-      userid: id.trim(),
+    const existingReport = await MonthlyReport.findOne({
+      userid: trimmedId,
       year: yearNum,
       month: monthNum,
     })
       .select("-_id -__v")
       .lean();
-    if (cached) return res.json(cached);
 
-    /* ---------- compute fresh report ---------- */
-    const firstDay = new Date(Date.UTC(yearNum, monthNum - 1, 1));
-    const lastDay = new Date(Date.UTC(yearNum, monthNum, 0, 23, 59, 59));
+    if (existingReport) {
+      return res.json(existingReport);
+    }
 
-    const raw = await Cost.aggregate([
+    const validCategories = ["food", "health", "housing", "sport", "education"];
+    const startDate = new Date(yearNum, monthNum - 1, 1);
+    const endDate = new Date(yearNum, monthNum, 0);
+
+    const currentCosts = await Cost.aggregate([
       {
         $match: {
-          userid: id.trim(),
-          category: { $in: VALID_CATEGORIES },
-          date: { $gte: firstDay, $lte: lastDay },
+          userid: trimmedId,
+          date: { $gte: startDate, $lte: endDate },
+          category: { $in: validCategories },
         },
       },
       {
@@ -159,62 +181,79 @@ router.get("/report", async (req, res) => {
       },
     ]);
 
-    /* ---------- normalise to full category list ---------- */
-    const costs = Object.fromEntries(VALID_CATEGORIES.map((cat) => [cat, []]));
-    raw.forEach((r) => {
-      costs[r._id] = r.items;
-    });
+    const formattedCosts = {};
+    validCategories.forEach((cat) => (formattedCosts[cat] = []));
+    for (const categoryData of currentCosts || []) {
+      formattedCosts[categoryData._id] = categoryData.items;
+    }
 
-    /* ---------- store cache & return ---------- */
-    const rep = await new MonthlyReport({
-      userid: id.trim(),
+    const newReport = new MonthlyReport({
+      userid: trimmedId,
       year: yearNum,
       month: monthNum,
-      costs,
-    }).save();
+      costs: formattedCosts,
+    });
 
-    const out = rep.toObject();
-    delete out._id;
-    delete out.__v;
-    res.json(out);
+    await newReport.save();
+
+    const responseObject = newReport.toObject();
+    delete responseObject._id;
+    delete responseObject.__v;
+    res.json(responseObject);
   } catch (err) {
-    const status = err.code === 400 ? 400 : 500;
-    res.status(status).json({ error: err.message || "Server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-/* ------------------------------------------------------------------
- * 3)  GET /api/users/:id  – simple user card + total spent
- * ---------------------------------------------------------------- */
+/**
+ * Get user details and total expenses.
+ * @route GET /users/:id
+ */
 router.get("/users/:id", async (req, res) => {
   try {
     const id = req.params.id?.trim();
-    ensure(id, "User ID is required");
+    if (!id) {
+      return res.status(400).json({ error: "User ID is required." });
+    }
 
-    const person = await User.findOne({ id }, "first_name last_name id");
-    if (!person) return res.status(404).json({ error: "User not found" });
+    const foundUser = await User.findOne({ id }, "first_name last_name id");
+    if (!foundUser) {
+      return res.status(404).json({ error: "User not found." });
+    }
 
-    const [{ total = 0 } = {}] = await Cost.aggregate([
+    const totalCosts = await Cost.aggregate([
       { $match: { userid: id } },
       { $group: { _id: null, total: { $sum: "$sum" } } },
     ]);
 
-    res.json({ ...person.toObject(), total });
-  } catch (err) {
-    const status = err.code === 400 ? 400 : 500;
-    res.status(status).json({ error: err.message || "Server error" });
+    res.status(200).json({
+      id: foundUser.id,
+      first_name: foundUser.first_name,
+      last_name: foundUser.last_name,
+      total:
+        Array.isArray(totalCosts) && totalCosts.length > 0
+          ? totalCosts[0].total
+          : 0,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-/* ------------------------------------------------------------------
- * 4)  GET /api/about  – who we are
- * ---------------------------------------------------------------- */
-router.get("/about", (req, res) => {
-  res.json([
-    { first_name: "Shoval", last_name: "Markowitz" },
-    { first_name: "Adi", last_name: "Cheifetz" },
-  ]);
+/**
+ * Get list of developers (team).
+ * @route GET /about
+ */
+router.get("/about", async (req, res) => {
+  try {
+    const team = [
+      { first_name: "Shoval", last_name: "Markowitz" },
+      { first_name: "Adi", last_name: "Cheifetz" },
+    ];
+    res.status(200).json(team);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to load team data." });
+  }
 });
 
-/* ------------------------------------------------------------------ */
 module.exports = router;
