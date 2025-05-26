@@ -16,9 +16,9 @@ app.get("/", (req, res) => {
     <p>Status: <strong>Running</strong></p>
     <p>Available endpoints:</p>
     <ul>
-      <li><a href="/api/about">/api/about</a></li>
-      <li><a href="/api/users/123123">/api/users/:id</a></li>
-      <li><a href="/api/report?id=123123&year=2025&month=5">/api/report</a></li>
+      <li><a href="/api/about">about</a></li>
+      <li><a href="/api/users/123123">users/:id</a></li>
+      <li><a href="/api/report?id=123123&year=2025&month=5"report</a></li>
     </ul>
   `);
 });
