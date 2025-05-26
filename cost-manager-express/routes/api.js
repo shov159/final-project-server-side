@@ -72,8 +72,8 @@ router.post("/add", async (req, res) => {
 
     const existingMonthlyReport = await MonthlyReport.findOne({
       userid: userId,
-      year,
-      month,
+      year: year,
+      month: month,
     });
     if (existingMonthlyReport) {
       if (!existingMonthlyReport.costs[req.body.category]) {
@@ -120,7 +120,7 @@ router.get("/report", async (req, res) => {
     const { id, year, month } = req.query;
 
     if (!id || !year || !month) {
-      return res.status(400).json({ error: "Missing required parameters." });
+      return res.status(400).json({ error: "Missing id, year or month" });
     }
 
     const trimmedId = id.trim();

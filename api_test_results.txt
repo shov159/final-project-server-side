@@ -1,14 +1,10 @@
 Testing /about endpoint
 200 [{'first_name': 'Shoval', 'last_name': 'Markowitz'}, {'first_name': 'Adi', 'last_name': 'Cheifetz'}]
 Testing user existence before adding cost
-200 {'_id': '6830598390e985990a3bc11a', 'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
+200 {'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
 Testing valid cost addition
-201 {'userid': 123123, 'description': 'Train Ticket', 'category': 'education', 'sum': 18}
+201 {'cost': {'description': 'Bread', 'category': 'food', 'userid': 123123, 'sum': 5}}
 Testing /add with invalid category
-400 {'error': 'category must be one of: food, health, housing, sport, education'}
+400 {'error': 'Invalid category. Allowed: food, health, housing, sport, education.'}
 Testing /report with user not found
-404 {'error': 'User not found'}
-Testing /report with invalid params
-400 {'error': 'year must be an integer'}
-Testing report after adding cost
-200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [], 'health': [], 'housing': [], 'sport': [], 'education': []}, 'createdAt': '2025-05-26T17:34:01.478Z', 'updatedAt': '2025-05-26T17:34:01.478Z'}
+500 {'error': 'Cast to Number failed for value "nonexistent" (type string) at path "id" for model "User"'}
