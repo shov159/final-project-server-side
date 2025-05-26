@@ -1,0 +1,32 @@
+__________________________________
+
+testing getting the about
+-------------------------
+url=https://final-project-server-side-dcly.onrender.com/api/about
+data.status_code=200
+b'[{"first_name":"Shoval","last_name":"Markowitz"},{"first_name":"Adi","last_name":"Cheifetz"}]'
+data.text=[{"first_name":"Shoval","last_name":"Markowitz"},{"first_name":"Adi","last_name":"Cheifetz"}]
+[{'first_name': 'Shoval', 'last_name': 'Markowitz'}, {'first_name': 'Adi', 'last_name': 'Cheifetz'}]
+
+testing getting the report - 1
+------------------------------
+url=https://final-project-server-side-dcly.onrender.com/api/report?id=123123&year=2025&month=2
+data.status_code=200
+b'{"userid":"123123","year":2025,"month":2,"costs":{"food":[],"health":[],"housing":[],"sport":[],"education":[]}}'
+data.text={"userid":"123123","year":2025,"month":2,"costs":{"food":[],"health":[],"housing":[],"sport":[],"education":[]}}
+
+
+testing adding cost item
+----------------------------------
+url=https://final-project-server-side-dcly.onrender.com/api/add
+data.status_code=201
+b'{"cost":{"description":"milk 9","category":"food","userid":123123,"sum":8}}'
+
+testing getting the report - 2
+------------------------------
+url=https://final-project-server-side-dcly.onrender.com/api/report?id=123123&year=2025&month=2
+data.status_code=200
+b'{"userid":"123123","year":2025,"month":2,"costs":{"food":[],"health":[],"housing":[],"sport":[],"education":[]}}'
+data.text={"userid":"123123","year":2025,"month":2,"costs":{"food":[],"health":[],"housing":[],"sport":[],"education":[]}}
+
+
