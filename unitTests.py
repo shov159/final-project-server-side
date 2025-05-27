@@ -1,8 +1,9 @@
 import requests
 import json
 import sys
+from datetime import datetime
 
-BASE_URL = "http://localhost:3000/api"
+BASE_URL = "https://final-project-server-side-dcly.onrender.com/api"
 
 def test_about():
     print("Testing /about endpoint")

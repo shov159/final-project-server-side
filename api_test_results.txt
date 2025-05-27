@@ -3,8 +3,12 @@ Testing /about endpoint
 Testing user existence before adding cost
 200 {'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
 Testing valid cost addition
-201 {'cost': {'description': 'Bread', 'category': 'food', 'userid': 123123, 'sum': 5}}
+201 {'cost': {'description': 'Train Ticket', 'category': 'education', 'userid': 123123, 'sum': 18}}
 Testing /add with invalid category
 400 {'error': 'Invalid category. Allowed: food, health, housing, sport, education.'}
 Testing /report with user not found
-500 {'error': 'Cast to Number failed for value "nonexistent" (type string) at path "id" for model "User"'}
+404 {'error': 'User not found.'}
+Testing /report with invalid params
+400 {'error': 'Invalid year or month.'}
+Testing report after adding cost
+200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [{'sum': 5, 'description': 'Bread', 'day': 27}, {'sum': 5, 'description': 'Bread', 'day': 27}, {'sum': 8, 'description': 'milk 9', 'day': 27}, {'sum': 5, 'description': 'Bread', 'day': 27}, {'sum': 8, 'description': 'milk 9', 'day': 27}, {'sum': 5, 'description': 'Bread', 'day': 27}, {'sum': 5, 'description': 'Bread', 'day': 27}, {'sum': 8, 'description': 'milk 9', 'day': 27}], 'health': [], 'housing': [], 'sport': [], 'education': [{'sum': 18, 'description': 'Train Ticket', 'day': 27}]}}
