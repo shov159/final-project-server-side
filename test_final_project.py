@@ -32,7 +32,7 @@ print("------------------------------")
 
 try:
     text = ""
-    url = line + "/api/report?id=123123&year=2025&month=2"
+    url = line + "/api/report?id=123123&year=2025&month=5"
     data = requests.get(url)
     print("url=" + url)
     print("data.status_code=" + str(data.status_code))
@@ -62,7 +62,7 @@ print("------------------------------")
 
 try:
     text = ""
-    url = line + "/api/report?id=123123&year=2025&month=2"
+    url = line + "/api/report?id=123123&year=2025&month=5"
     data = requests.get(url)
     print("url=" + url)
     print("data.status_code=" + str(data.status_code))

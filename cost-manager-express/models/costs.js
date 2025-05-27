@@ -22,4 +22,4 @@ costSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Cost", costSchema);
+module.exports = mongoose.model("cost", costSchema);

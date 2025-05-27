@@ -2,22 +2,22 @@
  * All the API routes for the project:
  * - Add cost
  * - Monthly report
- * - User details
+ * - user details
  * - Development team info
  */
 const express = require("express");
 const router = express.Router();
-const User = require("../models/users");
-const Cost = require("../models/costs");
-const MonthlyReport = require("../models/monthlyReport");
+const user = require("../models/users");
+const cost = require("../models/costs");
+const monthlyReport = require("../models/monthlyReport");
 
 /**
  * Add a new cost for a user.
  * @route POST /add
- * @body {string} userid - User ID
- * @body {string} description - Cost description
- * @body {string} category - Cost category (food, health, housing, sport, education)
- * @body {number} sum - Cost amount (must be positive)
+ * @body {string} userid - user ID
+ * @body {string} description - cost description
+ * @body {string} category - cost category (food, health, housing, sport, education)
+ * @body {number} sum - cost amount (must be positive)
  * @body {string} [date] - Optional date (defaults to today)
  */
 router.post("/add", async (req, res) => {
@@ -45,49 +45,49 @@ router.post("/add", async (req, res) => {
       });
     }
 
-    const costDate = req.body.date
+    const dateOfCoast = req.body.date
       ? new Date(req.body.date + "T00:00:00.000Z")
       : new Date();
-    if (isNaN(costDate.getTime())) {
+    if (isNaN(dateOfCoast.getTime())) {
       return res.status(400).json({ error: "Invalid date format." });
     }
 
-    const foundUser = await User.findOne({ id: userId });
-    if (!foundUser) {
-      return res.status(404).json({ error: "User not found." });
+    const searchUser = await user.findOne({ id: userId });
+    if (!searchUser) {
+      return res.status(404).json({ error: "user not found." });
     }
 
-    const newCost = new Cost({
+    const newCost = new cost({
       description: req.body.description,
       category: req.body.category,
       userid: userId,
       sum: req.body.sum,
-      date: costDate,
+      date: dateOfCoast,
     });
 
     const savedCost = await newCost.save();
 
-    const year = costDate.getFullYear();
-    const month = costDate.getMonth() + 1;
+    const year = dateOfCoast.getFullYear();
+    const month = dateOfCoast.getMonth() + 1;
 
-    const existingMonthlyReport = await MonthlyReport.findOne({
+    const monthlyReportWhenExists = await monthlyReport.findOne({
       userid: userId,
       year: year,
       month: month,
     });
-    if (existingMonthlyReport) {
-      if (!existingMonthlyReport.costs[req.body.category]) {
-        existingMonthlyReport.costs[req.body.category] = [];
+    if (monthlyReportWhenExists) {
+      if (!monthlyReportWhenExists.costs[req.body.category]) {
+        monthlyReportWhenExists.costs[req.body.category] = [];
       }
 
-      await MonthlyReport.updateOne(
+      await monthlyReport.updateOne(
         { userid: userId, year, month },
         {
           $push: {
             [`costs.${req.body.category}`]: {
               sum: savedCost.sum,
               description: savedCost.description,
-              day: costDate.getDate(),
+              day: dateOfCoast.getDate(),
             },
           },
         }
@@ -111,7 +111,7 @@ router.post("/add", async (req, res) => {
 /**
  * Get monthly report for a user.
  * @route GET /report
- * @query {string} id - User ID
+ * @query {string} id - user ID
  * @query {number} year - Year
  * @query {number} month - Month (1-12)
  */
@@ -123,7 +123,7 @@ router.get("/report", async (req, res) => {
       return res.status(400).json({ error: "Missing id, year or month" });
     }
 
-    const trimmedId = id.trim();
+    const idTrim = id.trim();
     const yearNum = Number(year);
     const monthNum = Number(month);
 
@@ -138,13 +138,13 @@ router.get("/report", async (req, res) => {
       return res.status(400).json({ error: "Invalid year or month." });
     }
 
-    const foundUser = await User.findOne({ id: trimmedId });
-    if (!foundUser) {
-      return res.status(404).json({ error: 'User not found.' });
+    const searchUser = await user.findOne({ id: idTrim });
+    if (!searchUser) {
+      return res.status(404).json({ error: 'user not found.' });
     }
 
-    const existingReport = await MonthlyReport.findOne({
-      userid: trimmedId,
+    const existingReport = await monthlyReport.findOne({
+      userid: idTrim,
       year: yearNum,
       month: monthNum,
     })
@@ -156,14 +156,14 @@ router.get("/report", async (req, res) => {
     }
 
     const validCategories = ["food", "health", "housing", "sport", "education"];
-    const startDate = new Date(yearNum, monthNum - 1, 1);
-    const endDate = new Date(yearNum, monthNum, 0);
+    const dateStart = new Date(yearNum, monthNum - 1, 1);
+    const dateEnd = new Date(yearNum, monthNum, 0);
 
-    const currentCosts = await Cost.aggregate([
+    const currentCosts = await cost.aggregate([
       {
         $match: {
-          userid: trimmedId,
-          date: { $gte: startDate, $lte: endDate },
+          userid: idTrim,
+          date: { $gte: dateStart, $lte: dateEnd },
           category: { $in: validCategories },
         },
       },
@@ -187,8 +187,8 @@ router.get("/report", async (req, res) => {
       formattedCosts[categoryData._id] = categoryData.items;
     }
 
-    const newReport = new MonthlyReport({
-      userid: trimmedId,
+    const newReport = new monthlyReport({
+      userid: idTrim,
       year: yearNum,
       month: monthNum,
       costs: formattedCosts,
@@ -196,10 +196,10 @@ router.get("/report", async (req, res) => {
 
     await newReport.save();
 
-    const responseObject = newReport.toObject();
-    delete responseObject._id;
-    delete responseObject.__v;
-    res.json(responseObject);
+    const responseValue = newReport.toObject();
+    delete responseValue._id;
+    delete responseValue.__v;
+    res.json(responseValue);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -213,26 +213,26 @@ router.get("/users/:id", async (req, res) => {
   try {
     const id = req.params.id?.trim();
     if (!id) {
-      return res.status(400).json({ error: "User ID is required." });
+      return res.status(400).json({ error: "user ID is required." });
     }
 
-    const foundUser = await User.findOne({ id }, "first_name last_name id");
-    if (!foundUser) {
-      return res.status(404).json({ error: "User not found." });
+    const searchUser = await user.findOne({ id }, "first_name last_name id");
+    if (!searchUser) {
+      return res.status(404).json({ error: "user not found." });
     }
 
-    const totalCosts = await Cost.aggregate([
+    const amountcosts = await cost.aggregate([
       { $match: { userid: id } },
       { $group: { _id: null, total: { $sum: "$sum" } } },
     ]);
 
     res.status(200).json({
-      id: foundUser.id,
-      first_name: foundUser.first_name,
-      last_name: foundUser.last_name,
+      id: searchUser.id,
+      first_name: searchUser.first_name,
+      last_name: searchUser.last_name,
       total:
-        Array.isArray(totalCosts) && totalCosts.length > 0
-          ? totalCosts[0].total
+        Array.isArray(amountcosts) && amountcosts.length > 0
+          ? amountcosts[0].total
           : 0,
     });
   } catch (error) {

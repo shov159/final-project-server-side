@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use("/api", apiRouter);
 app.get("/", (req, res) => {
   res.send(`
-    <h1> Cost Manager API</h1>
+    <h1> cost Manager API</h1>
     <p>Status: <strong>Running</strong></p>
     <p>Available endpoints:</p>
     <ul>

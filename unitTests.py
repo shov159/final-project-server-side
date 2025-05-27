@@ -17,7 +17,7 @@ def test_check_user_exists():
     user_id = "123123"
     response = requests.get(f"{BASE_URL}/users/{user_id}")
     print(response.status_code, response.json())
-    assert response.status_code == 200, "User should exist before adding cost"
+    assert response.status_code == 200, "user should exist before adding cost"
 
 def test_add_valid_cost():
     print("Testing valid cost addition")
@@ -47,7 +47,7 @@ def test_get_report_no_data():
     print("Testing /report with user not found")
     response = requests.get(f"{BASE_URL}/report/?id=999999&year=2025&month=2")
     print(response.status_code, response.json())
-    assert response.status_code == 404, "User not found"
+    assert response.status_code == 404, "user not found"
 
 def test_get_report_invalid_params():
     print("Testing /report with invalid params")

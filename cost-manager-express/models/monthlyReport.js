@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const MonthlyReportSchema = new mongoose.Schema(
+const monthlyReportSchema = new mongoose.Schema(
     {
         userid: {
             type: String,
@@ -21,4 +21,4 @@ const MonthlyReportSchema = new mongoose.Schema(
 
     });
 
-module.exports = mongoose.model("MonthlyReport", MonthlyReportSchema);
+module.exports = mongoose.model("monthlyReport", monthlyReportSchema);
