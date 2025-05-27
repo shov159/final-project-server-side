@@ -83,10 +83,10 @@ def test_report_after_addition():
     print("Report Data:", data)
     assert response.status_code == 200, "Report request should succeed"
     found = False
-    for category_name, items in data["costs"].items():
-        if any(item.get("description") == "Bread" for item in items):
-            found = True
-            break
+    for category in data["costs"]:
+        for key, value in category.items():
+            if any(item.get("description") == "Bread" for item in value):
+                found = True
     assert found, "Added cost should appear in the report"
 
 def test_get_user_not_found():

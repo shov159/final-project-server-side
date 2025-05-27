@@ -140,7 +140,7 @@ router.get("/report", async (req, res) => {
 
     const foundUser = await User.findOne({ id: trimmedId });
     if (!foundUser) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: 'User not found.' });
     }
 
     const existingReport = await MonthlyReport.findOne({
@@ -148,7 +148,7 @@ router.get("/report", async (req, res) => {
       year: yearNum,
       month: monthNum,
     })
-      .select("-_id -__v")
+      .select("-id -_v")
       .lean();
 
     if (existingReport) {
