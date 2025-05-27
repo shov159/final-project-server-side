@@ -1,6 +1,7 @@
 import requests
 import json
 import sys
+from datetime import datetime
 
 BASE_URL = "https://final-project-server-side-dcly.onrender.com/api"
 
@@ -20,11 +21,13 @@ def test_check_user_exists():
 
 def test_add_valid_cost():
     print("Testing valid cost addition")
+    current_date = datetime.now()
     data = {
         "userid": "123123",
         "description": "Bread",
         "category": "food",
-        "sum": 5
+        "sum": 5,
+        "date": current_date.strftime("%Y-%m-%d")
     }
     response = requests.post(f"{BASE_URL}/add/", json=data)
     print(response.status_code, response.json())
@@ -44,7 +47,7 @@ def test_add_invalid_category():
 
 def test_get_report_no_data():
     print("Testing /report with user not found")
-    response = requests.get(f"{BASE_URL}/report/?id=nonexistent&year=2025&month=2")
+    response = requests.get(f"{BASE_URL}/report/?id=999999&year=2025&month=2")
     print(response.status_code, response.json())
     assert response.status_code == 404, "User not found"
 
@@ -56,12 +59,12 @@ def test_get_report_invalid_params():
 
 def test_report_after_addition():
     print("Testing report after adding cost")
-    response = requests.get(f"{BASE_URL}/report/?id=123123&year=2025&month=2")
+    current_date = datetime.now()
+    response = requests.get(f"{BASE_URL}/report/?id=123123&year={current_date.year}&month={current_date.month}")
     print(response.status_code, response.json())
     assert response.status_code == 200, "Report request should succeed"
     report_data = response.json()
-    assert any(item["description"] == "Bread" for item in
-report_data["costs"]["food"]), \
+    assert any(item["description"] == "Bread" for item in report_data["costs"]["food"]), \
         "Added cost should appear in the report"
 
 def test_get_user_not_found():
