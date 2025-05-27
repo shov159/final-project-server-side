@@ -1,9 +1,8 @@
 import requests
 import json
 import sys
-from datetime import datetime
 
-BASE_URL = "https://final-project-server-side-dcly.onrender.com/api"
+BASE_URL = "http://localhost:3000/api"
 
 def test_about():
     print("Testing /about endpoint")
@@ -21,13 +20,11 @@ def test_check_user_exists():
 
 def test_add_valid_cost():
     print("Testing valid cost addition")
-    current_date = datetime.now()
     data = {
         "userid": "123123",
         "description": "Bread",
         "category": "food",
-        "sum": 5,
-        "date": current_date.strftime("%Y-%m-%d")
+        "sum": 5
     }
     response = requests.post(f"{BASE_URL}/add/", json=data)
     print(response.status_code, response.json())
