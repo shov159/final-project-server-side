@@ -1,6 +1,7 @@
 import requests
 import json
 import sys
+import time
 
 BASE_ENDPOINT = "https://final-project-server-side-dcly.onrender.com/api"
 
@@ -55,6 +56,7 @@ def submit_valid_cost_entry():
     resp = requests.post(f"{BASE_ENDPOINT}/add/", json=cost_payload)
     print(resp.status_code, resp.json())
     assert resp.status_code == 201, "Cost entry should be accepted"
+    time.sleep(1)
 
 def fetch_report_with_bad_params():
     print("Fetching report with invalid parameters")
@@ -74,22 +76,32 @@ def verify_cost_appears_in_report():
     print(response.status_code, response.json())
     assert response.status_code == 200, "Report request should succeed"
     report_data = response.json()
-    assert any(item["description"] == "pasta" for item in report_data["costs"]["food"]), \
-        "Added cost should appear in the report"
+    if "costs" not in report_data or "food" not in report_data["costs"]:
+        print("Report data structure:", report_data)
+        assert False, "Report should contain costs and food category"
+    food_items = report_data["costs"]["food"]
+    found = any(item["description"] == "pasta" for item in food_items)
+    if not found:
+        print("Available food items:", food_items)
+        assert False, "Added cost (pasta) must be present in report"
 
 def execute_all_tests():
     with open("api_test_results.txt", "w") as output_file:
         sys.stdout = output_file
 
-        verify_team_endpoint()
-        check_user_missing_case()
-        check_user_valid_case()
-        validate_user_presence()
-        reject_invalid_category_cost()
-        submit_valid_cost_entry()
-        verify_cost_appears_in_report()
-        fetch_report_with_bad_params()
-        fetch_report_for_nonexistent_user()
+        try:
+            verify_team_endpoint()
+            check_user_missing_case()
+            check_user_valid_case()
+            validate_user_presence()
+            reject_invalid_category_cost()
+            submit_valid_cost_entry()
+            verify_cost_appears_in_report()
+            fetch_report_with_bad_params()
+            fetch_report_for_nonexistent_user()
+        except Exception as e:
+            print(f"\nTest failed with error: {str(e)}")
+            raise
 
         sys.stdout = sys.__stdout__
 
