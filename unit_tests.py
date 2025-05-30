@@ -48,9 +48,9 @@ def submit_valid_cost_entry():
     print("Submitting valid cost entry")
     cost_payload = {
         "userid": "123123",
-        "description": "Train Ticket",
-        "category": "education",
-        "sum": 18
+        "description": "pasta",
+        "category": "food",
+        "sum": 12
     }
     resp = requests.post(f"{BASE_ENDPOINT}/add/", json=cost_payload)
     print(resp.status_code, resp.json())
@@ -73,12 +73,10 @@ def verify_cost_appears_in_report():
     resp = requests.get(f"{BASE_ENDPOINT}/report/?id=123123&year=2025&month=5")
     print(resp.status_code, resp.json())
     assert resp.status_code == 200, "Report request should succeed"
-    report = resp.json()
-    found_cost = False
-    for cat, expenses in report["costs"].items():
-        if any(exp["description"] == "Train Ticket" for exp in expenses):
-            found_cost = True
-    assert found_cost, "Added cost must be present in report"
+    report_data = resp.json()
+    food_items = report_data["costs"].get("food", [])
+    found = any(item["description"] == "pasta" for item in food_items)
+    assert found, "Added cost must be present in report"
 
 def execute_all_tests():
     with open("api_test_results.txt", "w") as output_file:
@@ -90,9 +88,9 @@ def execute_all_tests():
         validate_user_presence()
         reject_invalid_category_cost()
         submit_valid_cost_entry()
+        verify_cost_appears_in_report()
         fetch_report_with_bad_params()
         fetch_report_for_nonexistent_user()
-        verify_cost_appears_in_report()
 
         sys.stdout = sys.__stdout__
 
