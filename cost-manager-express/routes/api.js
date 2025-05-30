@@ -206,103 +206,6 @@ router.get("/report", async (req, res) => {
 });
 
 /**
- * Add a new cost for a user.
- * @route POST /add
- * @body {string} userid - user ID
- * @body {string} description - cost description
- * @body {string} category - cost category (food, health, housing, sport, education)
- * @body {number} sum - cost amount (must be positive)
- * @body {string} [date] - Optional date (defaults to today)
- */
-router.post("/add", async (req, res) => {
-  try {
-    const userId = req.body.userid ? String(req.body.userid) : null;
-
-    if (
-      !userId ||
-      !req.body.description ||
-      !req.body.category ||
-      typeof req.body.sum !== "number" ||
-      req.body.sum <= 0
-    ) {
-      return res.status(400).json({
-        error:
-          "Missing or invalid parameters. Required: userid, description, category, sum (positive).",
-      });
-    }
-
-    const validCategories = ["food", "health", "housing", "sport", "education"];
-    if (!validCategories.includes(req.body.category)) {
-      return res.status(400).json({
-        error:
-          "Invalid category. Allowed: food, health, housing, sport, education.",
-      });
-    }
-
-    const dateOfCoast = req.body.date
-      ? new Date(req.body.date + "T00:00:00.000Z")
-      : new Date();
-    if (isNaN(dateOfCoast.getTime())) {
-      return res.status(400).json({ error: "Invalid date format." });
-    }
-
-    const searchUser = await user.findOne({ id: userId });
-    if (!searchUser) {
-      return res.status(404).json({ error: "user not found." });
-    }
-
-    const newCost = new cost({
-      description: req.body.description,
-      category: req.body.category,
-      userid: userId,
-      sum: req.body.sum,
-      date: dateOfCoast,
-    });
-
-    const savedCost = await newCost.save();
-
-    const year = dateOfCoast.getFullYear();
-    const month = dateOfCoast.getMonth() + 1;
-
-    const monthlyReportWhenExists = await monthlyReport.findOne({
-      userid: userId,
-      year: year,
-      month: month,
-    });
-    if (monthlyReportWhenExists) {
-      if (!monthlyReportWhenExists.costs[req.body.category]) {
-        monthlyReportWhenExists.costs[req.body.category] = [];
-      }
-
-      await monthlyReport.updateOne(
-        { userid: userId, year, month },
-        {
-          $push: {
-            [`costs.${req.body.category}`]: {
-              sum: savedCost.sum,
-              description: savedCost.description,
-              day: dateOfCoast.getDate(),
-            },
-          },
-        }
-      );
-    }
-
-    res.status(201).json({
-      cost: {
-        description: savedCost.description,
-        category: savedCost.category,
-        userid: savedCost.userid,
-        sum: savedCost.sum,
-        date: savedCost.date,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
  * Get user details and total expenses.
  * @route GET /users/:id
  */
@@ -329,12 +232,28 @@ router.get("/users/:id", async (req, res) => {
       last_name: searchUser.last_name,
       total:
         Array.isArray(amountCosts) && amountCosts.length > 0
-        ? amountCosts[0].total
-        : 0,
+      ? amountCosts[0].total
+    : 0,
 
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Get list of developers (team).
+ * @route GET /about
+ */
+router.get("/about", async (req, res) => {
+  try {
+    const team = [
+      { first_name: "Shoval", last_name: "Markowitz" },
+      { first_name: "Adi", last_name: "Cheifetz" },
+    ];
+    res.status(200).json(team);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to load team data." });
   }
 });
 

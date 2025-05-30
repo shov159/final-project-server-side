@@ -28,8 +28,8 @@ def check_user_valid_case():
 
 def validate_user_presence():
     print("Validating user presence before cost addition")
-    uid = "123123"
-    response = requests.get(f"{BASE_ENDPOINT}/users/{uid}")
+    userId = "123123"
+    response = requests.get(f"{BASE_ENDPOINT}/users/{userId}")
     print(response.status_code, response.json())
     assert response.status_code == 200, "User must exist before cost addition"
 
