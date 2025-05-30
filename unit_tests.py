@@ -56,7 +56,7 @@ def submit_valid_cost_entry():
     resp = requests.post(f"{BASE_ENDPOINT}/add/", json=cost_payload)
     print(resp.status_code, resp.json())
     assert resp.status_code == 201, "Cost entry should be accepted"
-    time.sleep(1)
+    time.sleep(6)
 
 def fetch_report_with_bad_params():
     print("Fetching report with invalid parameters")
