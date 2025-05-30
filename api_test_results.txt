@@ -15,4 +15,4 @@ Fetching report with invalid parameters
 Fetching report for nonexistent user
 404 {'error': 'user not found.'}
 Verifying added cost appears in monthly report
-200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [{'sum': 8, 'description': 'milk 9', 'day': 30}], 'health': [], 'housing': [], 'sport': [], 'education': [{'sum': 18, 'description': 'Train Ticket', 'day': 30}, {'sum': 18, 'description': 'Train Ticket', 'day': 30}]}}
+200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [{'sum': 8, 'description': 'milk 9', 'day': 30}], 'health': [], 'housing': [], 'sport': [], 'education': [{'sum': 18, 'description': 'Train Ticket', 'day': 30}]}}
