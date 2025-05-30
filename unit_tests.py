@@ -64,19 +64,18 @@ def fetch_report_with_bad_params():
 
 def fetch_report_for_nonexistent_user():
     print("Fetching report for nonexistent user")
-    resp = requests.get(f"{BASE_ENDPOINT}/report/?id=999999&year=2025&month=2")
+    resp = requests.get(f"{BASE_ENDPOINT}/report/?id=999999&year=2025&month=5")
     print(resp.status_code, resp.json())
     assert resp.status_code in [200, 404], "Expect 404 or empty report"
 
 def verify_cost_appears_in_report():
     print("Verifying added cost appears in monthly report")
-    resp = requests.get(f"{BASE_ENDPOINT}/report/?id=123123&year=2025&month=5")
-    print(resp.status_code, resp.json())
-    assert resp.status_code == 200, "Report request should succeed"
-    report_data = resp.json()
-    food_items = report_data["costs"].get("food", [])
-    found = any(item["description"] == "pasta" for item in food_items)
-    assert found, "Added cost must be present in report"
+    response = requests.get(f"{BASE_ENDPOINT}/report/?id=123123&year=2025&month=5")
+    print(response.status_code, response.json())
+    assert response.status_code == 200, "Report request should succeed"
+    report_data = response.json()
+    assert any(item["description"] == "pasta" for item in report_data["costs"]["food"]), \
+        "Added cost should appear in the report"
 
 def execute_all_tests():
     with open("api_test_results.txt", "w") as output_file:
