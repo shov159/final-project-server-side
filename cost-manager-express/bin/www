@@ -1,12 +1,25 @@
-#!/usr/bin/env node
+/**
+ * @fileoverview Entry point for starting the Express server.
+ * - Sets up the HTTP server.
+ * - Defines the port.
+ * - Starts listening for incoming requests.
+ */
 
-const app = require('../app');
-const http = require('http');
+const app = require('../app'); // Import the Express application instance
+const http = require('http');  // Node's built-in HTTP module for creating the server
 
+// Define the port to listen on. Use environment variable or default to 3000.
 const port = process.env.PORT || 3000;
-app.set('port', port);
+app.set('port', port); // Set the port for the Express app
 
+// Create an HTTP server with the Express app
 const server = http.createServer(app);
+
+/**
+ * Start the server and listen on the specified port.
+ * Logs a message when the server is successfully running.
+ */
 server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+

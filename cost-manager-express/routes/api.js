@@ -232,8 +232,9 @@ router.get("/users/:id", async (req, res) => {
       last_name: searchUser.last_name,
       total:
         Array.isArray(amountCosts) && amountCosts.length > 0
-          ? amountCosts[0].total
-          : 0,
+        ? amountCosts[0].total
+        : 0,
+
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
