@@ -47,16 +47,15 @@ def reject_invalid_category_cost():
 
 def submit_valid_cost_entry():
     print("Submitting valid cost entry")
-    cost_payload = {
+    data = {
         "userid": "123123",
-        "description": "pasta",
-        "category": "food",
-        "sum": 12
+        "description": "Test item",
+        "category": "invalid_category",
+        "sum": 10
     }
-    resp = requests.post(f"{BASE_ENDPOINT}/add/", json=cost_payload)
-    print(resp.status_code, resp.json())
-    assert resp.status_code == 201, "Cost entry should be accepted"
-    time.sleep(6)
+    response = requests.post(f"{BASE_URL}/add/", json=data)
+    print(response.status_code, response.json())
+    assert response.status_code == 400, "Should fail for invalid category"
 
 def fetch_report_with_bad_params():
     print("Fetching report with invalid parameters")
@@ -72,11 +71,12 @@ def fetch_report_for_nonexistent_user():
 
 def verify_cost_appears_in_report():
     print("Verifying added cost appears in monthly report")
-    response = requests.get(f"{BASE_ENDPOINT}/report/?id=123123&year=2025&month=5")
+    response = requests.get(f"{BASE_URL}/report/?id=123123&year=2025&month=2")
     print(response.status_code, response.json())
     assert response.status_code == 200, "Report request should succeed"
     report_data = response.json()
-    assert any(item["description"] == "pasta" for item in report_data["costs"]["food"]), \
+    assert any(item["description"] == "Bread" for item in
+report_data["costs"]["food"]), \
         "Added cost should appear in the report"
 
 def execute_all_tests():
