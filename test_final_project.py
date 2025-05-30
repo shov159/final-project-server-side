@@ -1,148 +1,74 @@
 import sys
 import requests
 
+filename = input("filename=")
 
-filename = input("filename="https://final-project-server-side-dcly.onrender.com)
+line = "https://final-project-server-side-dcly.onrender.com"
 
-line = "__________________________________"
-
-output = open(filename,"w")
-
+output = open(filename, "w")
 sys.stdout = output
 
-print(line)
-
+print("__________________________________")
 print()
-
-
 print("testing getting the about")
-
 print("-------------------------")
 
 try:
-
-  text = ""
-
-  #getting details of team manager
-
-  url = line + "/api/about/"
-
-  data = requests.get(url)
-
-  print("url="+url)
-
-  print("data.status_code="+str(data.status_code))
-
-  print(data.content)
-
-  print("data.text="+data.text)
-
-  print(data.json())
-
+    text = ""
+    url = line + "/api/about"
+    data = requests.get(url)
+    print("url=" + url)
+    print("data.status_code=" + str(data.status_code))
+    print(data.content)
+    print("data.text=" + data.text)
+    print(data.json())
 except Exception as e:
-
-  print("problem")
-
-  print(e)
-
-print("")
-
-
+    print("problem")
+    print(e)
 print()
-
 print("testing getting the report - 1")
-
 print("------------------------------")
 
 try:
-
-  text = ""
-
-  #getting the report
-
-  url = line + "/api/report/?id=123123&year=2025&month=2"
-
-  data = requests.get(url)
-
-  print("url="+url)
-
-  print("data.status_code="+str(data.status_code))
-
-  print(data.content)
-
-  print("data.text="+data.text)
-
-  print(text)
-
+    text = ""
+    url = line + "/api/report?id=123123&year=2025&month=5"
+    data = requests.get(url)
+    print("url=" + url)
+    print("data.status_code=" + str(data.status_code))
+    print(data.content)
+    print("data.text=" + data.text)
+    print(text)
 except Exception as e:
-
-  print("problem")
-
-  print(e)
-
-print("")
-
-
+    print("problem")
+    print(e)
 print()
-
 print("testing adding cost item")
-
 print("----------------------------------")
 
 try:
-
-  text = ""
-
-  url = line + "/api/add/"
-
-  data = requests.post(url,
-        json={'userid':123123, 'description':'milk 9','category':'food','sum':8})
-
-  print("url="+url)
-
-  print("data.status_code="+str(data.status_code))
-
-  print(data.content)
-
+    text = ""
+    url = line + "/api/add"
+    data = requests.post(url, json={'userid':123123, 'description':'milk 9','category':'food','sum':8})
+    print("url=" + url)
+    print("data.status_code=" + str(data.status_code))
+    print(data.content)
 except Exception as e:
-
-  print("problem")
-
-  print(e)
-
-print("")
-
-
+    print("problem")
+    print(e)
 print()
-
 print("testing getting the report - 2")
-
 print("------------------------------")
 
 try:
-
-  text = ""
-
-  #getting the report
-
-  url = line + "/api/report/?id=123123&year=2025&month=2"
-
-  data = requests.get(url)
-
-  print("url="+url)
-
-  print("data.status_code="+str(data.status_code))
-
-  print(data.content)
-
-  print("data.text="+data.text)
-
-  print(text)
-
+    text = ""
+    url = line + "/api/report?id=123123&year=2025&month=5"
+    data = requests.get(url)
+    print("url=" + url)
+    print("data.status_code=" + str(data.status_code))
+    print(data.content)
+    print("data.text=" + data.text)
+    print(text)
 except Exception as e:
-
-  print("problem")
-
-  print(e)
-
-print("")
+    print("problem")
+    print(e)
+print()
