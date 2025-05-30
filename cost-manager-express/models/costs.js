@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const costSchema = new mongoose.Schema({
+const CostSchema = new mongoose.Schema({
   userid: { type: Number, required: true },
   description: { type: String, required: true },
   category: {
@@ -14,7 +14,7 @@ const costSchema = new mongoose.Schema({
   year: Number,
 });
 
-costSchema.set("toJSON", {
+CostSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret._id;
     delete ret.__v;
@@ -22,4 +22,4 @@ costSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("cost", costSchema);
+module.exports = mongoose.model("cost", CostSchema);

@@ -148,8 +148,8 @@ router.get("/report", async (req, res) => {
       year: yearNum,
       month: monthNum,
     })
-      .select("-id -_v")
-      .lean();
+    .select("-_id -__v")
+    .lean();
 
     if (existingReport) {
       return res.json(existingReport);
@@ -221,7 +221,7 @@ router.get("/users/:id", async (req, res) => {
       return res.status(404).json({ error: "user not found." });
     }
 
-    const amountcosts = await cost.aggregate([
+    const amountCosts = await cost.aggregate([
       { $match: { userid: id } },
       { $group: { _id: null, total: { $sum: "$sum" } } },
     ]);
