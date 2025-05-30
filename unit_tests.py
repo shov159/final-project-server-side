@@ -1,7 +1,6 @@
 import requests
 import json
 import sys
-import time
 
 BASE_ENDPOINT = "https://final-project-server-side-dcly.onrender.com/api"
 
@@ -47,15 +46,15 @@ def reject_invalid_category_cost():
 
 def submit_valid_cost_entry():
     print("Submitting valid cost entry")
-    data = {
+     item = {
         "userid": "123123",
-        "description": "Test item",
-        "category": "invalid_category",
-        "sum": 10
+        "description": "pasta",
+        "category": "food",
+        "sum": 12
     }
-    response = requests.post(f"{BASE_URL}/add/", json=data)
+    response = requests.post(f"{BASE_ENDPOINT}/add/", json=item)
     print(response.status_code, response.json())
-    assert response.status_code == 400, "Should fail for invalid category"
+    assert response.status_code == 201, "Valid cost addition should succeed"
 
 def fetch_report_with_bad_params():
     print("Fetching report with invalid parameters")
@@ -71,11 +70,11 @@ def fetch_report_for_nonexistent_user():
 
 def verify_cost_appears_in_report():
     print("Verifying added cost appears in monthly report")
-    response = requests.get(f"{BASE_URL}/report/?id=123123&year=2025&month=2")
+    resp = requests.get(f"{BASE_ENDPOINT}/report/?id=999999&year=2025&month=5")
     print(response.status_code, response.json())
     assert response.status_code == 200, "Report request should succeed"
     report_data = response.json()
-    assert any(item["description"] == "Bread" for item in
+    assert any(item["description"] == "pasta" for item in
 report_data["costs"]["food"]), \
         "Added cost should appear in the report"
 
