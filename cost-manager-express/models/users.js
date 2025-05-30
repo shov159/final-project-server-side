@@ -9,7 +9,7 @@ const mongoose = require("mongoose");
 /**
  * Mongoose schema for a user record.
  *
- * @typedef {Object} User
+ * @typedef {Object} UserSchema
  * @property {string} id - A unique string identifier for the user.
  * @property {string} first_name - User's first name.
  * @property {string} last_name - User's last name.
@@ -43,6 +43,6 @@ const UserSchema = new mongoose.Schema(
  * Mongoose model for storing user records.
  * Each record represents a unique user with personal and demographic information.
  *
- * @type {mongoose.Model<user>}
+ * @type {mongoose.Model<UserSchema>}
  */
 module.exports = mongoose.model("user", UserSchema);

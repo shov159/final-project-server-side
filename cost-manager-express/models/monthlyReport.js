@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 /**
  * Mongoose schema for a monthly expense report.
  *
- * @typedef {Object} MonthlyReport
+ * @typedef {Object} MonthlyReportSchema
  * @property {string} userid - The ID of the user this report belongs to.
  * @property {number} year - The year of the expense report.
  * @property {number} month - The month of the report (1-12).
@@ -39,6 +39,6 @@ const MonthlyReportSchema = new mongoose.Schema(
  * Mongoose model for storing monthly cost reports.
  * This model tracks user expenses categorized by month and year.
  *
- * @const {mongoose.Model<monthlyReport>}
+ * @const {mongoose.Model<MonthlyReportSchema>}
  */
 module.exports = mongoose.model("monthlyReport", MonthlyReportSchema);

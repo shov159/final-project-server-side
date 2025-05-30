@@ -11,4 +11,8 @@ Rejecting cost entry with invalid category
 Submitting valid cost entry
 201 {'cost': {'description': 'pasta', 'category': 'food', 'userid': 123123, 'sum': 12}}
 Verifying added cost appears in monthly report
-200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [], 'health': [], 'housing': [], 'sport': [], 'education': []}}
+200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [{'sum': 12, 'description': 'pasta', 'day': 30}], 'health': [], 'housing': [], 'sport': [], 'education': []}}
+Fetching report with invalid parameters
+400 {'error': 'Invalid year or month.'}
+Fetching report for nonexistent user
+404 {'error': 'user not found.'}
