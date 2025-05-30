@@ -1,0 +1,18 @@
+Verifying /about endpoint
+200 [{'first_name': 'Shoval', 'last_name': 'Markowitz'}, {'first_name': 'Adi', 'last_name': 'Cheifetz'}]
+Checking user retrieval for missing user
+404 {'error': 'user not found.'}
+Checking user retrieval for valid user
+200 {'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
+Validating user presence before cost addition
+200 {'id': 123123, 'first_name': 'mosh', 'last_name': 'israeli', 'total': 0}
+Rejecting cost entry with invalid category
+400 {'error': 'Invalid category. Allowed: food, health, housing, sport, education.'}
+Submitting valid cost entry
+201 {'cost': {'description': 'Train Ticket', 'category': 'education', 'userid': 123123, 'sum': 18}}
+Fetching report with invalid parameters
+400 {'error': 'Invalid year or month.'}
+Fetching report for nonexistent user
+404 {'error': 'user not found.'}
+Verifying added cost appears in monthly report
+200 {'userid': '123123', 'year': 2025, 'month': 5, 'costs': {'food': [{'sum': 8, 'description': 'milk 9', 'day': 30}], 'health': [], 'housing': [], 'sport': [], 'education': [{'sum': 18, 'description': 'Train Ticket', 'day': 30}, {'sum': 18, 'description': 'Train Ticket', 'day': 30}]}}
