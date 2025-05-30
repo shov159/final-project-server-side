@@ -1,4 +1,3 @@
-
 import sys
 import requests
 
@@ -49,7 +48,7 @@ print("----------------------------------")
 try:
     text = ""
     url = line + "/api/add"
-    data = requests.post(url, json={'userid':123123, 'description':'milk 9','category':'food','sum':8})
+    data = requests.post(url, json={'userid': '123123', 'description': 'pasta', 'category': 'food', 'sum': 12})
     print("url=" + url)
     print("data.status_code=" + str(data.status_code))
     print(data.content)
