@@ -1,25 +1,37 @@
 /**
- * @fileoverview Entry point for starting the Express server.
- * - Sets up the HTTP server.
- * - Defines the port.
- * - Starts listening for incoming requests.
+ * Entry point for the Cost Manager API server.
+ * This file initializes and starts an HTTP server using the Express application.
+ * The server listens on a specified port from the environment or defaults to 3000.
+ *
+ * @module server
  */
 
 const app = require('../app'); // Import the Express application instance
-const http = require('http');  // Node's built-in HTTP module for creating the server
+const http = require('http');  // Node's built-in HTTP module
 
-// Define the port to listen on. Use environment variable or default to 3000.
+/**
+ * Retrieve the port from environment variables or default to 3000.
+ *
+ * @const {number|string}
+ */
 const port = process.env.PORT || 3000;
-app.set('port', port); // Set the port for the Express app
 
-// Create an HTTP server with the Express app
+// Set the port on the Express app for internal use
+app.set('port', port);
+
+/**
+ * Create an HTTP server with the Express app as the request handler.
+ *
+ * @const {http.Server}
+ */
 const server = http.createServer(app);
 
 /**
- * Start the server and listen on the specified port.
- * Logs a message when the server is successfully running.
+ * Start the HTTP server and begin listening on the specified port.
+ * Logs a success message once the server is up and running.
  */
 server.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
+
 

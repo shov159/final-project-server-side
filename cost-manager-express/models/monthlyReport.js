@@ -2,7 +2,7 @@
  * Mongoose schema for tracking monthly cost reports.
  * This schema defines the structure of reports that track categorized expenses for each user, organized by month and year.
  *
- * @module models/MonthlyReport
+ * @module models/monthlyReport
  */
 const mongoose = require("mongoose");
 /**

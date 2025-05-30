@@ -3,7 +3,7 @@
  * This schema defines the structure of documents representing individual users.
  * Each user has a unique identifier, name details, birthday, and marital status.
  *
- * @module models/User
+ * @module models/users
  */
 const mongoose = require("mongoose");
 /**

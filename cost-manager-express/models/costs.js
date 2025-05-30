@@ -2,13 +2,13 @@
  * Mongoose schema for cost entries.
  * This schema defines the structure of expense documents stored in the database.
  * Each entry is linked to a specific user and contains details like description, category, amount, and date.
- * @module models/Cost
+ * @module models/costs
  */
 const mongoose = require("mongoose");
 /**
  * Mongoose schema for a single cost entry.
  *
- * @typedef {Object} Cost
+ * @typedef {Object} CostSchema
  * @property {string} userid - ID of the user who logged the expense.
  * @property {string} description - A short description of what the cost was for.
  * @property {string} category - Category of the expense (must be one of: 'food', 'health', 'housing', 'sport', 'education').
@@ -48,7 +48,7 @@ const CostSchema = new mongoose.Schema(
 /**
  * Mongoose model for storing user cost records.
  *
- * @type {mongoose.Model<cost>}
+ * @type {mongoose.Model<CostSchema>}
  */
 module.exports = mongoose.model("cost", CostSchema);
 
