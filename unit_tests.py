@@ -76,14 +76,8 @@ def verify_cost_appears_in_report():
     print(response.status_code, response.json())
     assert response.status_code == 200, "Report request should succeed"
     report_data = response.json()
-    if "costs" not in report_data or "food" not in report_data["costs"]:
-        print("Report data structure:", report_data)
-        assert False, "Report should contain costs and food category"
-    food_items = report_data["costs"]["food"]
-    found = any(item["description"] == "pasta" for item in food_items)
-    if not found:
-        print("Available food items:", food_items)
-        assert False, "Added cost (pasta) must be present in report"
+    assert any(item["description"] == "pasta" for item in report_data["costs"]["food"]), \
+        "Added cost should appear in the report"
 
 def execute_all_tests():
     with open("api_test_results.txt", "w") as output_file:
