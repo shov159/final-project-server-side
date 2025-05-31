@@ -1,9 +1,10 @@
 import sys
 import requests
+import time
 
 filename = input("filename=")
 
-line = "https://final-project-server-side-dcly.onrender.com"
+BASE_URL = "https://final-project-server-side-dcly.onrender.com"
 
 output = open(filename, "w")
 sys.stdout = output
@@ -14,13 +15,12 @@ print("testing getting the about")
 print("-------------------------")
 
 try:
-    text = ""
-    url = line + "/api/about"
+    url = f"{BASE_URL}/api/about"
     data = requests.get(url)
-    print("url=" + url)
-    print("data.status_code=" + str(data.status_code))
+    print(f"url={url}")
+    print(f"data.status_code={data.status_code}")
     print(data.content)
-    print("data.text=" + data.text)
+    print(f"data.text={data.text}")
     print(data.json())
 except Exception as e:
     print("problem")
@@ -30,14 +30,13 @@ print("testing getting the report - 1")
 print("------------------------------")
 
 try:
-    text = ""
-    url = line + "/api/report?id=123123&year=2025&month=5"
+    url = f"{BASE_URL}/api/report?id=123123&year=2025&month=5"
     data = requests.get(url)
-    print("url=" + url)
-    print("data.status_code=" + str(data.status_code))
+    print(f"url={url}")
+    print(f"data.status_code={data.status_code}")
     print(data.content)
-    print("data.text=" + data.text)
-    print(text)
+    print(f"data.text={data.text}")
+    print("")
 except Exception as e:
     print("problem")
     print(e)
@@ -46,12 +45,21 @@ print("testing adding cost item")
 print("----------------------------------")
 
 try:
-    text = ""
-    url = line + "/api/add"
-    data = requests.post(url, json={'userid':123123, 'description':'milk 9','category':'food','sum':8})
-    print("url=" + url)
-    print("data.status_code=" + str(data.status_code))
+    url = f"{BASE_URL}/api/add"
+    cost_item = {
+        'userid': 123123,
+        'description': 'milk 9',
+        'category': 'food',
+        'sum': 8
+    }
+    data = requests.post(url, json=cost_item)
+    print(f"url={url}")
+    print(f"data.status_code={data.status_code}")
     print(data.content)
+
+    print("Waiting for server to process the cost...")
+    time.sleep(10)
+
 except Exception as e:
     print("problem")
     print(e)
@@ -60,15 +68,17 @@ print("testing getting the report - 2")
 print("------------------------------")
 
 try:
-    text = ""
-    url = line + "/api/report?id=123123&year=2025&month=5"
+    url = f"{BASE_URL}/api/report?id=123123&year=2025&month=5"
     data = requests.get(url)
-    print("url=" + url)
-    print("data.status_code=" + str(data.status_code))
+    print(f"url={url}")
+    print(f"data.status_code={data.status_code}")
     print(data.content)
-    print("data.text=" + data.text)
-    print(text)
+    print(f"data.text={data.text}")
+    print("")
 except Exception as e:
     print("problem")
     print(e)
 print()
+
+sys.stdout = sys.__stdout__
+print(f"Test completed. Results saved to {filename}")

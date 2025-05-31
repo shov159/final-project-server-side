@@ -1,7 +1,7 @@
 /**
  * Express server for the Cost Manager API.
  * This server handles routing for user expenses and reports, and connects to MongoDB.
- * 
+ *
  * @module app
  */
 const express = require("express");
@@ -15,7 +15,7 @@ dotenv.config({ path: "./config/.env" });
 
 /**
  * Create an Express application instance.
- * 
+ *
  * @const {Express}
  */
 const app = express();
@@ -36,19 +36,14 @@ app.get("/", (req, res) => {
   res.send(`
     <h1> cost Manager API</h1>
     <p>Status: <strong>Running</strong></p>
-    <p>Available endpoints:</p>
-    <ul>
-      <li><a href="/api/about">about</a></li>
-      <li><a href="/api/users/123123">users/:id</a></li>
-      <li><a href="/api/report?id=123123&year=2025&month=5"report</a></li>
-    </ul>
+    
   `);
 });
 
 /**
  * Connect to MongoDB using the connection string defined in environment variables.
  * Logs a success message if the connection is established, or an error if it fails.
- * 
+ *
  * @returns {Promise<void>}
  */
 mongoose
@@ -58,4 +53,3 @@ mongoose
 
 // Export the Express application instance
 module.exports = app;
-

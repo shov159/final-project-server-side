@@ -48,7 +48,7 @@ def reject_invalid_category_cost():
 def submit_valid_cost_entry():
     print("Submitting valid cost entry")
     item = {
-        "userid": "123123",
+        "userid": 123123,
         "description": "pasta",
         "category": "food",
         "sum": 12
@@ -56,7 +56,6 @@ def submit_valid_cost_entry():
     response = requests.post(f"{BASE_ENDPOINT}/add/", json=item)
     print(response.status_code, response.json())
     assert response.status_code == 201, "Valid cost addition should succeed"
-    time.sleep(2)  # Wait for cost to be processed
 
 def fetch_report_with_bad_params():
     print("Fetching report with invalid parameters")
@@ -80,7 +79,7 @@ def verify_cost_appears_in_report():
         "Added cost should appear in the report"
 
 def execute_all_tests():
-    with open("api_test_results.txt", "w") as output_file:
+    with open("test_results.txt", "w") as output_file:
         sys.stdout = output_file
 
         try:
