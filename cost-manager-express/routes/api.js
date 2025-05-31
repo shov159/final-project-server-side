@@ -22,14 +22,17 @@ const monthlyReport = require("../models/monthlyReport");
  */
 router.post("/add", async (req, res) => {
   try {
-    const userId = req.body.userid ? String(req.body.userid) : null;
+    const userId = Number(req.body.userid);
+    const { description, category, sum } = req.body;
 
+    const validCategories = ["food", "health", "housing", "sport", "education"];
     if (
       !userId ||
-      !req.body.description ||
-      !req.body.category ||
-      typeof req.body.sum !== "number" ||
-      req.body.sum <= 0
+      !description ||
+      !category ||
+      !validCategories.includes(category) ||
+      typeof sum !== "number" ||
+      sum <= 0
     ) {
       return res.status(400).json({
         error:
@@ -37,62 +40,38 @@ router.post("/add", async (req, res) => {
       });
     }
 
-    const validCategories = ["food", "health", "housing", "sport", "education"];
-    if (!validCategories.includes(req.body.category)) {
-      return res.status(400).json({
-        error:
-          "Invalid category. Allowed: food, health, housing, sport, education.",
-      });
-    }
-
     const dateOfCoast = req.body.date
       ? new Date(req.body.date + "T00:00:00.000Z")
       : new Date();
-    if (isNaN(dateOfCoast.getTime())) {
+    if (isNaN(dateOfCoast)) {
       return res.status(400).json({ error: "Invalid date format." });
     }
 
-    const searchUser = await user.findOne({ id: userId });
-    if (!searchUser) {
+    if (!(await user.exists({ id: userId }))) {
       return res.status(404).json({ error: "user not found." });
     }
 
-    const newCost = new cost({
-      description: req.body.description,
-      category: req.body.category,
+    const savedCost = await cost.create({
+      description,
+      category,
       userid: userId,
-      sum: req.body.sum,
+      sum,
       date: dateOfCoast,
     });
 
-    const savedCost = await newCost.save();
-
     const year = dateOfCoast.getFullYear();
     const month = dateOfCoast.getMonth() + 1;
+    const day = dateOfCoast.getDate();
 
-    const monthlyReportWhenExists = await monthlyReport.findOne({
-      userid: userId,
-      year: year,
-      month: month,
-    });
-    if (monthlyReportWhenExists) {
-      if (!monthlyReportWhenExists.costs[req.body.category]) {
-        monthlyReportWhenExists.costs[req.body.category] = [];
-      }
-
-      await monthlyReport.updateOne(
-        { userid: userId, year, month },
-        {
-          $push: {
-            [`costs.${req.body.category}`]: {
-              sum: savedCost.sum,
-              description: savedCost.description,
-              day: dateOfCoast.getDate(),
-            },
-          },
-        }
-      );
-    }
+    await monthlyReport.findOneAndUpdate(
+      { userid: userId, year, month },
+      {
+        $push: {
+          [`costs.${category}`]: { sum, description, day },
+        },
+      },
+      { upsert: true, new: true }
+    );
 
     res.status(201).json({
       cost: {
@@ -140,16 +119,17 @@ router.get("/report", async (req, res) => {
 
     const searchUser = await user.findOne({ id: idTrim });
     if (!searchUser) {
-      return res.status(404).json({ error: 'user not found.' });
+      return res.status(404).json({ error: "user not found." });
     }
 
-    const existingReport = await monthlyReport.findOne({
-      userid: idTrim,
-      year: yearNum,
-      month: monthNum,
-    })
-    .select("-_id -__v")
-    .lean();
+    const existingReport = await monthlyReport
+      .findOne({
+        userid: idTrim,
+        year: yearNum,
+        month: monthNum,
+      })
+      .select("-_id -__v")
+      .lean();
 
     if (existingReport) {
       return res.json(existingReport);
@@ -232,9 +212,8 @@ router.get("/users/:id", async (req, res) => {
       last_name: searchUser.last_name,
       total:
         Array.isArray(amountCosts) && amountCosts.length > 0
-      ? amountCosts[0].total
-    : 0,
-
+          ? amountCosts[0].total
+          : 0,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
